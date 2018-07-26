@@ -209,34 +209,33 @@ server <- function(input, output, session) {
       )
     )
     
-    dtm <- TermDocumentMatrix(datainput()[1:100], control = list(removeNumbers = T, removePunctuation = T, stripWhitespace = T, tolower = T, stopwords = T, stemming = T))
-    findFreqTerms(dtm, lowfreq = 15)
+    dtm <- TermDocumentMatrix(datainput()[1:input$freqmax], control = list(removeNumbers = T, removePunctuation = T, stripWhitespace = T, tolower = T, stopwords = T, stemming = T))
     termFrequency <- rowSums(as.matrix(dtm))
-    termFrequency <- subset(termFrequency, termFrequency >=15)
+    termFrequency <- subset(termFrequency, termFrequency >=input$freqmin)
     barplot(termFrequency, las = 2, col = rainbow(20))
     
   })
   
   
   output$mistable <- renderPrint({
-    misspelled_words <- hunspell_find(as.character(myfile()$reviews.text[1:100]), format = "latex")
-    misspelled_words[1:50]
+    misspelled_words <- hunspell_find(as.character(myfile()$reviews.text[1:input$freqmaxmisp]), format = "latex")
+    misspelled_words
     
   })
   
   output$freqmisp <- renderPrint({
-    misspelled_words <- hunspell_find(as.character(myfile()$reviews.text[1:100]), format = "latex")
+    misspelled_words <- hunspell_find(as.character(myfile()$reviews.text[1:input$freqmaxmisp]), format = "latex")
     mydatasetcorpus <- Corpus(VectorSource(misspelled_words))
-    dtm <- TermDocumentMatrix(mydatasetcorpus[1:200])
+    dtm <- TermDocumentMatrix(mydatasetcorpus)
     termFrequency <- rowSums(as.matrix(dtm))
     as.matrix(termFrequency)
   })
   
   output$freqtable <- renderPrint({
     mydatasetcorpus <- Corpus(VectorSource(myfile()$reviews.text))
-    dtm <- TermDocumentMatrix(mydatasetcorpus[1:100], control = list(removeNumbers = T, removePunctuation = T, stripWhitespace = T, tolower = T, stopwords = T, stemming = T))
+    dtm <- TermDocumentMatrix(mydatasetcorpus[1:input$freqmax], control = list(removeNumbers = T, removePunctuation = T, stripWhitespace = T, tolower = T, stopwords = T, stemming = T))
     termFrequency <- rowSums(as.matrix(dtm))
-    termFrequency <- subset(termFrequency, termFrequency >=15)
+    termFrequency <- subset(termFrequency, termFrequency >=input$freqmin)
     as.matrix(termFrequency)
   })
   
@@ -288,17 +287,16 @@ server <- function(input, output, session) {
       )
     )
     
-    words_list <- myfile()$reviews.text
+    words_list = strsplit(as.character(myfile()$reviews.text), " ")
     # Words per review 
-    words_list = strsplit(as.character(words_list), split = 0)
     words_per_review = sapply(words_list, length)
     #	How does review length differ by rating?
     data <- cbind(words_per_review, myfile())
-    ggplot(data=data,aes(x=words_per_review, fill = myfile()$reviews.rating))+
+    ggplot(data=data,aes(x=words_per_review, fill = reviews.rating))+
       geom_histogram(bins=40)+ 
-      labs(title="Review Length by Rating",
-           x="Frequency",
-           y="Number of words per review"
+      labs(title="Distribution of product ratings",
+           x="Number of words per review",
+           y="Frequency"
       )
   })
   

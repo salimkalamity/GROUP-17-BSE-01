@@ -53,15 +53,18 @@ ui <- dashboardPage(skin = "yellow",
                     dashboardBody(
                       tabItems(
                         tabItem(tabName = "gr",
-                        box(title = "Prediction Example:",width = 12,status = "warning",solidHeader = T,collapsible = FALSE,
+                        box(title = "Prediction Example:",width = 12,status = "warning",solidHeader = T,collapsible = T,
                             textInput("missample", strong("Enter a statement or word below and click the button below to detect or predict misspelled word(s) and a suggestion")),
                             textOutput("misword"),
-                            actionButton("missamplebutton", "Check spelling")
+                            actionButton("missamplebutton", "Check spelling(s)")
                                 ),
-                        box(title = "Table of Misspelled words",width = 12,status = "warning",solidHeader = T,collapsible = FALSE,
+                        box(title = "Table of Misspelled words",width = 12,status = "warning",solidHeader = T,collapsible = T,
+                            sliderInput("freqmaxmisp", "Select Maximum number of rows to be checked.",
+                                        min = 1, max = 71000, value = 15), br(),
+                            paste("List:"),br(),
                             textOutput("mistable")
                         ),
-                        box(width = 12,status = "warning",solidHeader = T,collapsible = FALSE,title = "Frequency of Misspelled words",
+                        box(width = 12,status = "warning",solidHeader = T,collapsible = T,title = "Frequency of Misspelled words",
                             textOutput("freqmisp")
                         )
                                 
@@ -74,7 +77,7 @@ ui <- dashboardPage(skin = "yellow",
                                 br(),
                                 verbatimTextOutput("nomisp"),
                                 verbatimTextOutput("punc"),
-                                box(width = 12,status = "warning",solidHeader = T,collapsible = FALSE,title = "Plot",
+                                box(width = 12,status = "warning",solidHeader = T,collapsible = T,title = "Plot",
                                   
                                     br(),
                                     plotOutput("puncplot")
@@ -127,10 +130,26 @@ ui <- dashboardPage(skin = "yellow",
                                 
                                 ),
                         tabItem(tabName = "file",
+                                paste("The users of this system must strictly upload a CSV file(comma separated values)."),
+                                br(),
+                                br(),
+                                paste("The Other file formats such as Excel files(with a .xlsx extension)", "Text files(with a .txt extension","etc. will not be compatible with the system.", sep = " "),
+                      br(),
+                      br(),
+                      paste("Users with Excel files should convert them to csv files."),
+                      br(),
+                      br(),
+                      paste("Uploaded file should have column names named as following:"),
+                      br(),
+                      br(),
+                      paste("- Column with reviews should be named as reviews.text"),
+                      br(),
+                      br(),
+                      paste("- Column with product should be named as reviews.rating",". This column should consist of strictly numeric values."), br(),br(),
                                 fileInput("file", "Upload CSV file", accept=c("text/plain", ".csv")),
                                 helpText(paste("Please upload a CSV file with the text", 
                                                "you would like to analyze.")
-                                )),
+                                          )),
                         tabItem(tabName = "text",
                                 helpText(paste("This tab displays the uploaded csv file.")),
                                 br(),
@@ -143,10 +162,15 @@ ui <- dashboardPage(skin = "yellow",
                                          br(),
                                          paste("most frequent words in the text.")),
                                 box(width = 12,status = "warning",solidHeader = T,collapsible = T,title = "Frequency of words ",
-                                    
+                                    sliderInput("freqmin", "Select Minimum number of times a word has appeared in the reviews.",
+                                                min = 1, max = 1000, value = 15),
+                                    sliderInput("freqmax", "Select Maximum number of rows to be checked.",
+                                                min = 1, max = 71000, value = 15),
+                                    br(),
+                                    paste("List:"),br(),
                                     textOutput("freqtable")
                                 ),
-                                box(width = 12,status = "warning",solidHeader = T,collapsible = FALSE,title = "Plot showing frequency of words ",
+                                box(width = 12,status = "warning",solidHeader = T,collapsible = T,title = "Plot showing frequency of words ",
                                   
                                   plotOutput("freq")
                                     
